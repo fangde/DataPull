@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Data Pull</title>
+    <link rel="stylesheet" href="scripts/css/bootstrap.min.css">
+    <link rel="stylesheet" href="scripts/css/myData.css">
+</head>
+<body>
+
+<div id="wrapper" ng-app="Data">
+
+    <div ng-controller="dataCtrl" class="container-fluid">
+        <div class="row">
+            <div class="col-lg-6">
+                <textarea class="myText" rows="25" ng-model="values"></textarea>
+            </div>
+            <div class="col-lg-6">
+                <textarea class="myText" rows="25" ng-model="jsonValues"></textarea>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-1">
+                <button type="button" class="btn btn-default" ng-click="readJoel()">Read Joel</button>
+            </div>
+
+            <div class="col-sm-push-1 col-sm-1">
+                <input type="file" id="iMedFiles" name="iMedFiles" multiple=true />
+                <button type="button" class="btn btn-default" ng-click="readIMed()">Open iMed Files</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script type="text/javascript" src="scripts/vendor/jquery.min.js"></script>
+<script type="text/javascript" src="scripts/vendor/angular.min.js"></script>
+<script type="text/javascript" src="scripts/vendor/angular-resource.min.js"></script>
+<script type="text/javascript" src="scripts/vendor/jquery.csv-0.71.min.js"></script>
+<script type="text/javascript" src="scripts/vendor/FileSaver.min.js"></script>
+<script type="text/javascript" src="scripts/main.js"></script>
+<script type="text/javascript" src="scripts/dataController.js"></script>
+<script type="text/javascript" src="scripts/patient/patient.module.js"></script>
+<script type="text/javascript" src="scripts/clinicalEvent/clinicalEvent.module.js"></script>
+<script type="text/javascript" src="scripts/clinicalEvent/clinicalEvent.module.js"></script>
+<script type="text/javascript" src="scripts/medicalHistory/medicalHistory.module.js"></script>
+<script type="text/javascript" src="scripts/findingAbout/findingAbout.module.js"></script>
+<script type="text/javascript" src="scripts/procedure/procedure.module.js"></script>
+<script type="text/javascript" src="scripts/relationship/relationship.module.js"></script>
+<script type="text/javascript" src="scripts/subjectVisit/subjectVisit.module.js"></script>
+<script type="text/javascript" src="scripts/questionnaire/questionnaire.module.js"></script>
+<script type="text/javascript" src="scripts/exposure/exposure.module.js"></script>
+<script type="text/javascript" src="scripts/morphology/morphology.module.js"></script>
+<script type="text/javascript" src="scripts/gourabModule.js"></script>
+<script type="text/javascript" src="scripts/joelModule.js"></script>
+<script type="text/javascript" src="scripts/iMedModule.js"></script>
+
+
+</body>
+</html>

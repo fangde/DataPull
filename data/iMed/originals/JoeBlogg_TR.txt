@@ -1,0 +1,9 @@
+Patient ID	MS Specific	Medication	Start Date	End Date	Dosage	Unit	Frequency	Route	Discontinuation
+1	Yes	Tysabri	24/11/2014		300	mg	/ Month	IV	
+1	No	Carbamezepine	02/12/2014						
+1	No	4-aminopyridine	02/06/2016	04/06/2016	10	mg	2 / Day	Other	
+2	Yes	Avonex	06/12/2014	04/02/2015	40	mcg	2 / Day	IM	
+2	Yes	Tysabri	04/02/2015	01/03/2015	300	mg	/ 2 Hour	Oral	Adverse Event
+2	Yes	Gilenya	04/02/2015		0.5		/ Day	IV	
+2	No	4-aminopyridine	04/02/2015		10	mg	2 / Day	Other	
+2	Yes	Rebif [22]	04/02/2015		22	mcg	3 / Week	SC	

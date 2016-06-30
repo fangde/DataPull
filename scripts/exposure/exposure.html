@@ -1,0 +1,197 @@
+<div class="container-fluid">
+    <div class="doubleMarginTop">
+        <div class="row">    <!-- Date of Onset -->
+            <div class="col-sm-4">
+                <form class="form-inline">
+                    <div class="form-group">
+                        <label class='control-label'>Start On</label>
+                        <input type="text" class="form-control DTC_DayMonthYear" ng-model="EXSTDTC_displayDate" ng-change="setEXSTDTC()" ng-disabled="getDisabledFields()">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="marginTop" id="interventionContent">
+        <div class="panel-group">
+            <div class="panel panel-default">
+                    <div class="panel-heading myPanel">
+                        <h3 class="panel-title">Treatments</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class='col-sm-6'>
+                                <div class="form-group">
+                                    <div class="btn-group" role="group" ng-init="EXCAT='Disease Modifying'">
+                                        <button type="button" class="btn btn-primary" ng-class="{active: EXCAT=='Disease Modifying'}" ng-click="EXCAT='Disease Modifying';">Disease Modifying</button>
+                                        <button type="button" class="btn btn-primary" ng-class="{active: EXCAT=='Symptomatic'}" ng-click="EXCAT='Symptomatic';">Symptomatic</button>
+                                        <button type="button" class="btn btn-primary" ng-class="{active: EXCAT=='Others'}" ng-click="EXCAT='Others';">Others</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='col-sm-4 col-sm-pull-2' ng-show="(EXCAT=='Others')">
+                                <div class="form-group">
+                                    <input type="text"  class="form-control" placeholder="eg. Physiotherapy">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" ng-show="(EXCAT=='Disease Modifying')||(EXCAT=='Symptomatic')">
+                            <div class='col-sm-4'>
+                                <div class="form-group">
+                                    <label class="control-label">Treatment</label>
+                                    <select class="form-control" ng-model='EXTRT' ng-change="addExposure()" ng-disabled="getDisabledFields()">
+                                        <option ng-repeat="drug in getDrugs()" value="{{drug.name}}">{{drug.name}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class='col-sm-2'>
+                                <div class="form-group">
+                                    <label class="control-label">Dose</label>
+                                    <select class="form-control" ng-model='EXDOSE' ng-change="addDoseProperty('EXDOSE')" ng-disabled="disableDoseProperty()">
+                                        <option ng-repeat="dose in getDosages()" value="{{dose}}">{{dose}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class='col-sm-2'>
+                                <div class="form-group">
+                                    <label class="control-label">Unit</label>
+                                    <select class="form-control" ng-model='EXDOSU' ng-change="addDoseProperty('EXDOSU')" ng-disabled="disableDoseProperty()">
+                                        <option ng-repeat="unit in getUnits()" value="{{unit}}">{{unit}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class='col-sm-2'>
+                                <div class="form-group">
+                                    <label class="control-label">Form</label>
+                                    <select class="form-control" ng-model='EXDOSFRM' ng-change="addDoseProperty('EXDOSFRM')" ng-disabled="disableDoseProperty()">
+                                        <option ng-repeat="form in getForms()" value="{{form}}">{{form}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class='col-sm-2'>
+                                <div class="form-group">
+                                    <label class="control-label">Frequency</label>
+                                    <select class="form-control" ng-model='EXDOSFRQ' ng-change="addDoseProperty('EXDOSFRQ')" ng-disabled="disableDoseProperty()">
+                                        <option ng-repeat="frequency in getFrequencies()" value="{{frequency}}">{{frequency}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            <div class="panel panel-default">
+                    <div class="panel-heading myPanel">
+                        <h3 class="panel-title">Drug Interuptions</h3>
+                    </div>
+                    <div class="panel-body">
+                        <table class="table">
+                            <thead><tr>
+                                <th class="col-sm-2">Stop Date</th>
+                                <th class="col-sm-2">Restart Date</th>
+                                <th class="col-sm-6">Reason</th>
+                                <th class="col-sm-2"></th>
+                            </tr></thead>
+                            <tbody>
+                            <tr>
+                                <tr ng-repeat="interuption in getInteruptions()">
+                                    <td><input type="text" class="form-control DTC_DayMonthYear" ng-model="interuption.endOfFirst.EXENDTC_display" ng-disabled=true></td>
+                                    <td><input type="text" class="form-control DTC_DayMonthYear" ng-model="interuption.startOfSecond.EXSTDTC_display" ng-disabled=true></td>
+                                    <td><select class="form-control" ng-model="interuption.endOfFirst.EXADJ" ng-change="editExposure(exposure.EXADJ)" ng-disabled=true>
+                                        <option>Pregnancy</option>
+                                        <option>Convenience</option>
+                                        <option>Adverse Event</option>
+                                        <option>Unknown</option></select>
+                                    </td>
+                                    <td><a href="" role="button" ng-click="deleteInteruption(interuption)" ng-disabled=true>Delete</a></td>
+                                </tr>
+                                <tr >
+                                    <td><input type="text" class="form-control DTC_DayMonthYear" ng-change="setEXENDTC_Interuption()" ng-model="EXENDTC_Interuption_display" ng-disabled="getDisabledFields()"></td>
+                                    <td><input type="text" class="form-control DTC_DayMonthYear" ng-change="setEXSTDTC_Interuption()"ng-model="EXSTDTC_Interuption_display" ng-disabled="getDisabledFields()"></td>
+                                    <td> <select class="form-control" ng-model="EXADJ_Interuption" ng-disabled="disableDoseProperty()">
+                                        <option>Pregnancy</option>
+                                        <option>Convenience</option>
+                                        <option>Adverse Event</option>
+                                        <option>Unknown</option></select>
+                                    </td>
+                                    <td><a href="" ng-click="addInteruption()" ng-disabled="disableDoseProperty()">Add</a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            <div class="panel panel-default">
+                    <div class="panel-heading myPanel">
+                        <h3 class="panel-title">Drug Discontinuation</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label class='control-label'>End Date</label>
+                                <input type="text" class="form-control DTC_DayMonthYear" ng-model="EXENDTC_displayDate" ng-change="setEXENDTC()" ng-disabled="disableDoseProperty()"/>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <div class="input-group marginBottom">
+                                    <label for="reasonForDiscontinuing">Reason for discontinuing</label>
+                                    <select class="form-control" id='reasonForDiscontinuing' ng-change="addEXADJ_Discontinuation()" ng-model="EXADJ_Discontinuation" ng-disabled="disableDoseProperty()">
+                                        <option>Disease Progression</option>
+                                        <option>Adverse Event</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4" ng-show="(EXADJ=='Adverse Event')">
+                            <div class="form-group">
+                                <div class="radio">
+                                    <label class=""><input type="radio" ng-model="SEV" ng-change="editEvent('SEV')" value="Mild" ng-disabled="disableDoseProperty()">
+                                        Mild
+                                    </label>
+                                </div>
+                                <div class="radio">
+                                    <label class=""><input type="radio" ng-model="SEV" ng-change="editEvent('SEV')"value="Moderate" ng-disabled="disableDoseProperty()">
+                                        Moderate
+                                    </label>
+                                </div>
+                                <div class="radio">
+                                    <label class=""><input type="radio" ng-model="SEV" ng-change="editEvent('SEV')" value="Severe" ng-disabled="disableDoseProperty()">
+                                        Severe
+                                    </label>
+                                    <div class="form" ng-show="(SEV=='Severe')">
+                                        <div class="form-group marginLeft" >
+                                            <div class="checkbox">
+                                                <label class=""><input type="checkbox" ng-model="AESDTH" ng-change="editAdverseEvent('AESDTH')" >
+                                                    Death
+                                                </label>
+                                            </div>
+                                            <div class="checkbox">
+                                                <label class=""><input type="checkbox" ng-model="AESLIFE" ng-change="editAdverseEvent('AESLIFE')" >
+                                                    Life Threatening
+                                                </label>
+                                            </div>
+                                            <div class="checkbox">
+                                                <label class=""><input type="checkbox" ng-model="AESDISAB" ng-change="editAdverseEvent('AESDISAB')" >
+                                                    Permanent/ Serious Disability
+                                                </label>
+                                            </div>
+                                            <div class="checkbox">
+                                                <label class=""><input type="checkbox" ng-model="AESHOSP" ng-change="editAdverseEvent('AESHOSP')" >
+                                                    Requires/ Prolongs hospitalization
+                                                </label>
+                                            </div>
+                                            <div class="checkbox">
+                                                <label class=""><input type="checkbox" ng-model="AESCONG" ng-change="editAdverseEvent('AESCONG')" >
+                                                    Congenital anomaly/ birth defect
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </div>
+    </div>
+</div>

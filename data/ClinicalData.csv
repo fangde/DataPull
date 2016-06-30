@@ -1,0 +1,31 @@
+Subject ID,Recruitment date,Age,DOB,Gender,Disease duration,Onset Date,MS type,Treatment,Last relapse,Functional systems affected,EDSS,9HPT L1,9HPT R1,9HPT L2,9HPT R2,25Ft walk 1,25Ft walk 2
+GD_1,15/09/2014,51,28/09/1963,F,8,17/09/2006,Relapse Remitting Multiple Sclerosis,Tysabri 02/2009,01/11/2008,right leg weakness,6.5,26.7,23.4,22.5,21.2,15.6,14.1
+GD_2,16/09/2014,47,28/09/1967,M,11,19/09/2003,Secondary Progressive Multiple Sclerosis,Stem cell,01/09/2013,weakness legs,7,61.3,76.7,78.9,84,,
+GD_3,01/10/2014,47,13/10/1967,M,3,02/10/2011,Relapse Remitting Multiple Sclerosis,Tysabri 04/2011,01/12/2010,left hand paraesthesia and weakness,1.5,24,19,26,24.1,4,5.7
+GD_4,03/10/2014,45,14/10/1969,F,28,10/10/1986,Relapse Remitting Multiple Sclerosis,"Tried interferon, Tysabri, started Campath 01/2013",01/05/2014,"Balance, weakness legs, trigemminal neuralgia",4,25.5,25,25.8,23.1,5.6,5
+GD_5,06/10/2014,52,19/10/1962,F,6,07/10/2008,Relapse Remitting Multiple Sclerosis,"copaxone 2 yrs:still relapses;Tysabri 3 yrs, became JC pos, Campath Feb2014",01/09/2013,"Left leg weakness, urinary frequency/urgency",2,25.1,20.9,19.4,21.6,4.3,4.1
+GD_6,17/10/2014,36,26/10/1978,M,10,19/10/2004,Secondary Progressive Multiple Sclerosis,"copaxone 5 yrs, Secondary Progressive Multiple Sclerosis 2010:copaxone stopped",29/06/1905,"Weakness legs, numbness fingers",7,61.2,45.7,140.1,113.3,133.00,143.8
+GD_7,31/10/2014,36,09/11/1978,F,6,01/11/2008,Relapse Remitting Multiple Sclerosis,Never,01/08/2014,"Weakness legs, numbness right arm",6,29.5,28.3,29.1,29.5,11.8,10.2
+GD_8,04/11/2014,53,17/11/1961,F,16,08/11/1998,Relapse Remitting Multiple Sclerosis,Never,01/10/2007,Left arm/leg wekaness/numbness,3.5,18.4,16.3,18.2,20.2,4.9,4.7
+GD_9,10/11/2014,45,21/11/1969,F,14,13/11/2000,Relapse Remitting Multiple Sclerosis,"Rebif 10yrs; leg abscess, changed to fingolimod 05/2013",01/01/2013,b/l arm/leg weakness,6.5,39.1,40.9,41.9,46.9,65.3,74.1
+GD_10,12/11/2014,42,22/11/1972,F,13,15/11/2001,Relapse Remitting Multiple Sclerosis,Betferon 10 yrs; Tysabri 11/2011,01/03/2001,Arms and leg numbness,1,20.4,18.1,19.4,19.5,3.9,3.6
+GD_11,02/12/2014,39,12/12/1975,F,3,03/12/2011,Relapse Remitting Multiple Sclerosis,Never,29/06/1905,Weakness legs and diplopia,7,19.8,17.5,20.7,21.5,,
+GD_12,12/12/2014,43,23/12/1971,F,10,14/12/2004,Relapse Remitting Multiple Sclerosis,"Rebif 18/12, Tysabri 2012",09/12/2015,optic neuritis and weakness/numbness/coordination legs,4.5,26.4,21.8,26.4,20.5,5.3,5.4
+GD_13,16/12/2014,29,23/12/1985,F,1,16/12/2013,Relapse Remitting Multiple Sclerosis,Rebif 04/2014,01/08/2013,Weakness/numbness legs,1,18.7,15.9,17,19.1,3.5,3.2
+GD_14,12/01/2015,62,27/01/1953,F,24,18/01/1991,Secondary Progressive Multiple Sclerosis,Never,19/06/1905,"Weakness legs:FES, left hand weakness",6,22.5,20.5,40.5,44.1,18.5,17.8
+GD_15,19/01/2015,30,26/01/1985,F,6,20/01/2009,Relapse Remitting Multiple Sclerosis,Tysabri since 03/2013,01/02/2013,"diplopia, paraesthesia hands, right leg weakness",4,32.6,26.2,35.6,33.9,7.1,6
+GD_16,20/01/2015,43,31/01/1972,M,13,23/01/2002,Secondary Progressive Multiple Sclerosis,Rebif 2001,01/11/2001,"Weakness legs:FES, visual blurring",5,59.9,51.1,30.5,26.5,5.3,5.1
+GD_17,27/01/2015,30,03/02/1985,F,8,29/01/2007,Relapse Remitting Multiple Sclerosis,"Rebif 01/2007, Tysabri 05/2012",01/07/2012,"brainstem symptoms: facila droop, nystagmus/diplopia, left body weakness and numbness/coordination",2,19.1,16.9,25.7,26,3.6,3.6
+GD_18,06/02/2015,64,22/02/1951,F,22,11/02/1993,Relapse Remitting Multiple Sclerosis,Tysabri 11/2010,02/02/2010,"Fatigue, difficulty walking (L>R), impaired sensation left hand",2.5,22.5,19.3,30.5,34.3,6.6,8.1
+GD_19,17/02/2015,57,03/03/1958,F,18,21/02/1997,Relapse Remitting Multiple Sclerosis,"Interferon 2001; relapses still (fewer, less severe): changed to fingolimod April 2013",01/10/2014,,1,18.6,17.4,18.3,19.4,4.7,4.7
+GD_20,31/03/2015,22,05/04/1993,F,16,04/04/1999,Relapse Remitting Multiple Sclerosis,Interferon 1999; relapses still (less severe): fingolimod 2013,01/03/2013,,3,18.3,20.3,22.6,20.3,4.5,5.1
+GD_21,14/04/2015,39,23/04/1976,M,10,16/04/2005,Relapse Remitting Multiple Sclerosis,"""Pills"" not know what, changes to alemtuzimab Oct 2014",01/01/2012,,4,28.3,27,33.2,24.9,4.3,4.1
+GD_22,16/04/2015,36,25/04/1979,M,6,17/04/2009,Relapse Remitting Multiple Sclerosis,"Rebif June 2009, changed to tecfidera July 2014 (tolerated better)",01/05/2014,,1,20.7,16.7,18,16.8,3.4,3.2
+GD_23,20/04/2015,48,02/05/1967,M,12,23/04/2003,Relapse Remitting Multiple Sclerosis,fingolimod 2008; still relapses (fewer): changed to Tysabri June 2014,01/12/2013,,7,36.8,28.4,124.4,131.4,24.6,23.6
+GD_24,21/04/2015,59,05/05/1956,M,23,26/04/1992,Secondary Progressive Multiple Sclerosis,Copaxone 2002- April 2014,01/01/2002,,6,20.7,17.3,22.9,26.7,19.5,19.5
+GD_25,26/05/2015,53,08/06/1962,M,14,29/05/2001,Relapse Remitting Multiple Sclerosis,Tysabri since 2012,01/01/2012,,5,22.7,22.3,24.8,21.2,8.9,9
+GD_26,18/06/2015,56,02/07/1959,M,17,22/06/1998,Secondary Progressive Multiple Sclerosis,Never,01/06/2013,,7,24.4,22.7,40.1,35.3,,
+GD_27,26/06/2015,38,05/07/1977,M,10,28/06/2005,Relapse Remitting Multiple Sclerosis,"Rebif 2007 for <9/12;2009:Tysabri, JCV+ve, stopped/restarted-no longer benefit; alemtuzimab May 2013",01/08/2009,,6,24,20.4,24.6,19.6,19.8,16.2
+GD_28,11/08/2015,50,23/08/1965,F,9,13/08/2006,Relapse Remitting Multiple Sclerosis,Never,01/08/2010,,2.5,21.8,18.2,20.8,18.5,4.3,4.4
+GD_29,14/08/2015,66,30/08/1949,F,17,18/08/1998,Secondary Progressive Multiple Sclerosis,,01/07/2004,,6.5,33.2,27.2,31.1,28.8,,
+GD_30,11/09/2015,58,25/09/1957,M,16,15/09/1999,Relapse Remitting Multiple Sclerosis,Avonex 2002-2005;copaxone 2005-2013;alemtuzimab Feb 2013,01/05/2015,,6.5,27.8,24.5,25.3,23.1,18.1,21
