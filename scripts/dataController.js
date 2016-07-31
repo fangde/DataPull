@@ -6,7 +6,12 @@
  * To change this template use File | Settings | File Templates.
  */
 
-var dataModule = angular.module('Data.parser',['Data.gourab','Data.joel','Optimise.patient', 'Data.iMed']);
+var dataModule = angular.module('Data.parser',['Data.gourab',
+    'Data.joel',
+    'Optimise.patient',
+    'Data.iMed',
+    'Data.gosh',
+    'Data.chx']);
 
 dataModule.service('dataService', function () {
     var stringToObject = function (values) {
@@ -16,12 +21,12 @@ dataModule.service('dataService', function () {
     return {
         stringToObject:stringToObject
     }
-})
+});
 
 dataModule.controller('dataCtrl', function ($scope, $q,
                                             $rootScope,
                                             dataService,
-                                            gourabData, joelData, iMedData) {
+                                            gourabData, joelData, iMedData, goshData, chxData) {
     $scope.readGourab = function() {
         var urlData = gourabData.getData();
 
@@ -66,6 +71,78 @@ dataModule.controller('dataCtrl', function ($scope, $q,
                 var id = joelData.getID(s);
                 var url = id.concat('.json');
                 saveAs(blob, url);
+            }
+        })
+    };
+
+    $scope.readCHX = function() {
+        var fingalimodURL = chxData.getFingolimodData();
+        fingalimodURL.then(function (fingalimodData) {
+            var fingalimodObjects = dataService.stringToObject(fingalimodData);
+            var fingalimodValues = chxData.setData(fingalimodObjects);
+            //var fingalimodValues = chxData.print();
+            var fingalimodSubjects = chxData.toCDISC_Fingalimod();
+
+            var tecfideraURL = chxData.getTecfideraData();
+            tecfideraURL.then(function (tecfideraData) {
+                var tecfideraObjects = dataService.stringToObject(tecfideraData);
+                var tecfideraValues = chxData.setData(tecfideraObjects);
+                //var tecfideraValues = chxData.print();
+                //console.log(tecfideraValues);
+                //$scope.values = tecfideraValues;
+                var tecfideraSubjects = chxData.toCDISC_Tecfidera(fingalimodValues);
+
+
+
+
+//            //for (var s = 0; s < subjects.length; s++) {
+                for (var s = 0; s < 1; s++) {
+                    $scope.jsonValues = angular.toJson(fingalimodSubjects[s]);
+                    var blob = new Blob([$scope.jsonValues], { type: "text/plain;charset=utf-8" });
+                    var id = chxData.getFingolimodID(fingalimodValues, s);
+                    var url = id.concat('.json');
+                    //console.log(url);
+                    saveAs(blob, url);
+                }
+
+                for (var s = 0; s < 1; s++) {
+                    $scope.jsonValues = angular.toJson(tecfideraSubjects[s]);
+                    var blob = new Blob([$scope.jsonValues], { type: "text/plain;charset=utf-8" });
+                    var id = chxData.getTecfideraID(tecfideraValues, s);
+                    var url = id.concat('.json');
+                    //console.log(url);
+                    saveAs(blob, url);
+                }
+            })
+        })
+    };
+
+
+    $scope.readGOSH = function() {
+
+        var file = document.getElementById('yaelFile').files;
+        //console.log(file[0]);
+
+        var urlData = goshData.getData(file[0]);
+        //console.log(urlData);
+
+        urlData.then(function (data) {
+            console.log(data);
+            //var result = data.replace(/[r|rn]/g, "/n");
+            var objects = dataService.stringToObject(data);
+            goshData.setData(objects);
+            //$scope.values = goshData.print();
+            var subjects = goshData.toCDISC();
+            for (var s = 0; s < subjects.length; s++) {
+            //for (var s = 0; s < 1; s++) {
+                $scope.jsonValues = angular.toJson(subjects[s]);
+//
+//                var blob = new Blob([$scope.jsonValues], { type: "text/plain;charset=utf-8" });
+//                var id = goshData.getID(s);
+//                var url = id.concat('.json');
+//                saveAs(blob, url);
+                saveJSON($scope.jsonValues, goshData.getID(s));
+                downloadToDrive($scope.jsonValues, goshData.getID(s));
             }
         })
     };
@@ -223,32 +300,33 @@ dataModule.controller('dataCtrl', function ($scope, $q,
         };
     };
 
-    var downloadToDrive = function (RecordSet, USUBJID) {
-        var data = angular.toJson(RecordSet);
-        //localStorage.setItem(USUBJID, data);
-        //console.log(localStorage.getItem(patients.getCurrentPatient().USUBJID));
+    var downloadToDrive = function (data, USUBJID) {
+        localStorage.setItem(USUBJID, data);
+        //console.log(localStorage.getItem(USUBJID));
+        var subjects = localStorage.getItem("NHS_OPT_Map");
 
-//        var subjects = localStorage.getItem("NHS_OPT_Map");
-//        if (subjects == null)
-//            subjects = [];
-//        else
-//            subjects = JSON.parse(subjects);
-//
-//        if (!IDExists(USUBJID)){
-//
-//            var newPair = {'NHS_USUBJID': USUBJID,
-//                'USUBJID': USUBJID};
-//            subjects.push(newPair);
-//            localStorage.setItem("NHS_OPT_Map",JSON.stringify(subjects));
-//        }
+        if (subjects === null){
+            localStorage.setItem("NHS_OPT_Map", []);
+            subjects = [];
+        }
+        else
+            subjects = JSON.parse(subjects);
 
-        //saveJSON(data, USUBJID);
-        //savePDF();
+        if (!IDExists(USUBJID)){
+            var newPair = {'NHS_USUBJID': USUBJID,
+                'USUBJID': USUBJID};
+            subjects.push(newPair);
+            localStorage.setItem("NHS_OPT_Map",JSON.stringify(subjects));
+        }
     }
 
     var IDExists = function (OPT_ID) {
         var subjectList = localStorage.getItem('NHS_OPT_Map');
-        if (subjectList != null) {
+
+        if (subjectList.length == 0) {
+            return false;
+        }
+        else {
             subjectList = JSON.parse(subjectList);
             for (var s = 0; s < subjectList.length; s++) {
                 if (subjectList[s].USUBJID == OPT_ID) {
@@ -256,7 +334,6 @@ dataModule.controller('dataCtrl', function ($scope, $q,
                 }
             }
         }
-        return false;
     }
 
     var saveJSON = function (text, fileID) {

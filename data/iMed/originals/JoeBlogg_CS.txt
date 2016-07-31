@@ -1,3 +1,0 @@
-Patient ID	Exam Date	Result	Proteins	Glucose	Albumin	Q Albumin	lgG	IgG Index	Link Index	White Cell Count	Lymphocytes	Granulocytes	Plasmacells	Oligoclonal Banding	Matched OCB in Serum	Nb Oligoclonal Banding
-1	10/01/2015													Not Done		
-2	20/12/2014	Abnormal MS-atypical												Not Done		

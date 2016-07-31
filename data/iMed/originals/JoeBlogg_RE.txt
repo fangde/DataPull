@@ -1,3 +1,0 @@
-Patient ID	Relapse Date	Duration	Impact ADL Functions	Recovery	Severity	CNS Pyramidal Tract	CNS Brain Stem	CNS Bowel Bladder	CNS Neuropsycho Functions	CNS Cerebellum	CNS Visual Functions	CNS Sensory Functions	CNS Other	Hospital	Ambulatory	Corticosteroids	Treatment Name	Treatment Start	Treatment End
-1	20/12/2014	2	0			No	No	No	No	No	No	No		No	Yes	Yes	4-aminopyridine	02/06/2016	04/06/2016
-2	18/12/1994	30	2	Complete		No	No	No	No	No	No	No		No	No				
