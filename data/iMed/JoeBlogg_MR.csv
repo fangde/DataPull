@@ -1,0 +1,2 @@
+Patient ID,Exam Date,Exam Region,T1,Status T1,Nb Lesions T1,T1 GdE,Status T1 GdE,Nb Lesions GdE,T2,Status T2,Nb Lesions T2,Nb New or Enlarging Lesions,McDonald Lesions T1 Gd,McDonald Lesions T2,McDonald Lesions Infratentorial,McDonald Lesions Juxtacortical,McDonald Lesions Periventricular,Contiguous lesion extending more than 3 vertebral segments
+1,10/01/15,Brain,Yes,,,Yes,,,No,,,,,,,,,
