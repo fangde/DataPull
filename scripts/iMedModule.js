@@ -15,7 +15,8 @@ var iMedModule = angular.module('Data.iMed',['Optimise.patient',
     'Optimise.subjectVisit',
     'Optimise.questionnaire',
     'Optimise.exposure',
-    'Optimise.morphology']);
+    'Optimise.morphology',
+    'Optimise.csf']);
 
 iMedModule.service('iMedService', function() {
     var getRecordItem  = function (aRecord) {
@@ -48,7 +49,7 @@ iMedModule.service('iMedService', function() {
 
     var advanceDate = function (stdtc, days) {
         var endtc = new Date(stdtc);
-        endtc.setDate(stdtc.getDate()+days);
+        endtc.setDate(stdtc.getDate()+parseInt(days));
         return endtc;
     }
 
@@ -70,6 +71,9 @@ iMedModule.service('iMedData', function($q, Patient,
                                             question, questionnaires,
                                             exposures, Exposure, DrugFactory,
                                             Morphology, morphologyServices,
+                                            LaboratoryTestResult, laboratoryTestResults,
+                                            nervousSystemFindings, NervousSystemFinding,
+                                            csfService,
                                             iMedService){
 
     var headings = [];
@@ -77,14 +81,14 @@ iMedModule.service('iMedData', function($q, Patient,
 
     var getData = function (file) {
         return $q(function(resolve, reject) {
-        setTimeout(function() {
+        //setTimeout(function() {
             var iMedReader = new FileReader();
             iMedReader.onloadend = function(e){
                 var data = e.target.result;
                 resolve(data);
             }
             iMedReader.readAsText(file);
-        }, 500);
+        //}, 500);
     })};
 
     var setData = function (domainData, domains) {
@@ -119,10 +123,11 @@ iMedModule.service('iMedData', function($q, Patient,
     }
 
     var addMedicalHistory = function(USUBJID, MHCAT, MHSCAT, MHSTDTC, MHTERM) {
-        var MH = new MedicalEvent(USUBJID, MHSCAT);
+        var MH = new MedicalEvent(USUBJID, MHCAT);
         MH.MHSTDTC = MHSTDTC;
         MH.MHTERM = MHTERM;
         MH.MHSCAT = MHSCAT;
+        MH.displaySTDTC = MHSTDTC.getFullYear();
         medicalHistory.addOccurence(MH);
     }
 
@@ -132,10 +137,22 @@ iMedModule.service('iMedData', function($q, Patient,
 
     var ID_CDISC = function(RecordItems, value) {
 
+        // GOSH
+        //var USUBJID = generateOPTID(value['Patient ID']);
+        //var USUBJID = generateOPTID(value['Patient Code']);
+
+        //J Radcliff
         var USUBJID = generateOPTID(value['Patient ID']);
+
+
         var DM = new Patient(USUBJID);
 
-        DM.NHS_USUBJID = USUBJID;
+        // GOSH
+        //DM.NHS_USUBJID = value['Patient Code'];
+
+        // J Radcliff
+        DM.NHS_USUBJID = value['Last Name']+", "+value['First Name']+" ("+value['Birth Date']+")";
+
         DM.SEX = value['Gender'];
         DM.BRTHDTC = iMedService.getDate(value['Birth Date']);
         DM.COUNTRY = value['Birth Country'];
@@ -146,7 +163,11 @@ iMedModule.service('iMedData', function($q, Patient,
         if (value['Diagnosis Date'] != ""){
             addMedicalHistory(USUBJID, 'Primary Diagnosis', 'Onset Course',
                 iMedService.getDate(value['Diagnosis Date']),
-                'Relapse Remitting Multiple Sclerosis');
+                'Relapsing Remitting Multiple Sclerosis');
+        }
+
+        if (value['Since'] != ""){
+            console.log(value['Since']);
         }
 
         if (value['Date of Onset'] != ""){
@@ -172,7 +193,7 @@ iMedModule.service('iMedData', function($q, Patient,
         }
 
         if (value['Date Secondary Progressive'] != ""){
-            addMedicalHistory(USUBJID, 'Primary Diagnosis','',
+            addMedicalHistory(USUBJID, 'Primary Diagnosis','Progressive Course',
                 iMedService.getDate(value['Date Secondary Progressive']),
                 'Secondary Progressive Multiple Sclerosis');
         }
@@ -300,9 +321,9 @@ iMedModule.service('iMedData', function($q, Patient,
         }
     }
 
-    var addRelapseFinding = function(CE) {
-        var aFinding = new findingAbout(CE.USUBJID, CE.CETERM, 'Severity Test', 'Impact on ADL'); // Is it mobility??
-        aFinding.FAORES = '';
+    var addRelapseFinding = function(CE, FASCAT) {
+        var aFinding = new findingAbout(CE.USUBJID, CE.CETERM, 'Severity Test', FASCAT); // Is it mobility??
+        aFinding.FAORES = 'Yes';
         aFinding.FADTC = CE.CESTDTC;
         aFinding.FALNKID = CE.CESTDTC+" Multiple Sclerosis Relapse";
         findingsAbout.addFinding(aFinding);
@@ -318,10 +339,20 @@ iMedModule.service('iMedData', function($q, Patient,
                newEvent.CEENDTC = iMedService.advanceDate(newEvent.CESTDTC, relapse['Duration']);
         newEvent.CELNKID = newEvent.CESTDTC+" Multiple Sclerosis Relapse";
         newEvent.CESEV = relapse['Severity'];
-        newEvent.CEOUT = relapse['Recovery'];
+        newEvent.displayDate = parseInt(newEvent.CESTDTC.getMonth()+1)+"/"+newEvent.CESTDTC.getFullYear();
+        newEvent.displayLabel = newEvent.CESEV;
 
         clinicalEvents.addEvent(newEvent);
-        addRelapseFinding(newEvent);
+
+        if ((relapse['Impact ADL Functions'] != '') && ((relapse['Impact ADL Functions'] != 0)))
+            addRelapseFinding(newEvent, 'Impact on ADL');
+
+        if (relapse['Corticosteroids'] == 'Yes'){
+            addRelapseFinding(newEvent, 'Cortisteroids prescribed');
+            newEvent.displayLabel = newEvent.CESEV+ ", Steroids";
+        }
+
+        //console.log(newEvent);
         return newEvent;
     }
 
@@ -396,12 +427,233 @@ iMedModule.service('iMedData', function($q, Patient,
                 newExposure.EXDOSFRQ = treatment['Frequency'];
                 newExposure.displayDate = newExposure.EXSTDTC.toDateString();
                 newExposure.displayLabel = newExposure.EXTRT;
-                if (treatment["MS Specific"])
+                if (treatment["MS Specific"] != 'Yes')
                     newExposure.EXCAT = 'Disease Modifying';
+                else
+                    newExposure.EXCAT = '';
                 exposures.addExposure(newExposure);
             }
         }
     }
+
+    var MR_CDISC = function(patientID) {
+        for (var e = 0; e < values['MR'].length; e++) {
+            if (patientID == values['MR'][e]['Patient ID']) {
+                var mri = values['MR'][e];
+                var USUBJID = generateOPTID(patientID);
+                var newProcedure = addProcedure(USUBJID, "MRI", iMedService.getDate(mri['Exam Date']));
+                newProcedure.displayDate = mri['Exam Date'];
+            }
+        }
+    }
+
+    var addLab = function (USUBJID, LBTEST, LBDTC) {
+        var aLab = new LaboratoryTestResult(USUBJID, LBTEST);
+        aLab.LBDTC = LBDTC;
+        laboratoryTestResults.addResult(aLab);
+        return aLab;
+    }
+
+    var LB_CDISC = function(patientID) {
+        for (var e = 0; e < values['LT'].length; e++) {
+            if (patientID == values['LT'][e]['Patient ID']) {
+                var lab = values['LT'][e];
+                var USUBJID = generateOPTID(patientID);
+                var newLab = addLab(USUBJID, "", iMedService.getDate(lab['Exam Date']));
+                newLab.displayDate = lab['Exam Date'];
+                newLab.displayLabel = 'Lab Tests';
+            }
+        }
+    }
+
+    var addVEP = function (USUBJID, NVTEST, NVDTC, NVLAT, NVORRES) {
+        var newFinding = new NervousSystemFinding(USUBJID, NVTEST);
+        newFinding.NVORRES = NVORRES;
+        newFinding.NVDTC = NVDTC;
+        newFinding.NVLAT = NVLAT;
+        newFinding.displayLabel = 'Evoked Potential';
+        newFinding.NVCAT = "Evoked Potential";
+        nervousSystemFindings.addFinding(newFinding);
+        return newFinding;
+    }
+
+    var addSEP = function (USUBJID, NVTEST, NVDTC, NVLAT, NVLOC, NVORRES) {
+        var newFinding = new NervousSystemFinding(USUBJID, NVTEST);
+        newFinding.NVORRES = NVORRES;
+        newFinding.NVDTC = NVDTC;
+        newFinding.NVLAT = NVLAT;
+        newFinding.NVLOC = NVLOC;
+        newFinding.NVCAT = "Evoked Potential";
+        newFinding.displayLabel = 'Evoked Potential';
+        console.log(newFinding);
+        nervousSystemFindings.addFinding(newFinding);
+        return  newFinding;
+    }
+
+    var VEP_CDISC = function(patientID) {
+        for (var e = 0; e < values['EP'].length; e++) {
+            if (patientID == values['EP'][e]['Patient ID']) {
+                var ep = values['EP'][e];
+                //console.log(ep);
+                var USUBJID = generateOPTID(patientID);
+                if (ep['Latency Right Result'] != '') {
+                    var newEP = addVEP(USUBJID, 'Intepretation', iMedService.getDate(ep['Exam Date']), 'Right', ep['Latency Right Result']);
+                    newEP.displayDate = ep['Exam Date'];
+                }
+
+                if ((ep['Latency Right'] != '') ) {
+                    var newEP = addVEP(USUBJID, 'P100 Latency', iMedService.getDate(ep['Exam Date']), 'Right', ep['Latency Right']);
+                    newEP.displayDate = ep['Exam Date'];
+                }
+
+                if (ep['Latency Left Result'] != '') {
+                    var newEP = addVEP(USUBJID, 'Intepretation', iMedService.getDate(ep['Exam Date']), 'Left', ep['Latency Left Result']);
+                    newEP.displayDate = ep['Exam Date'];
+                }
+
+                if ((ep['Latency Left'] != '') ) {
+                    var newEP = addVEP(USUBJID, 'P100 Latency', iMedService.getDate(ep['Exam Date']), 'Left', ep['Latency Left']);
+                    newEP.displayDate = ep['Exam Date'];
+                }
+
+                if ((ep['Amplitude Right'] != '') ) {
+                    var newEP = addVEP(USUBJID, 'P100 Amplitude', iMedService.getDate(ep['Exam Date']), 'Right', ep['Amplitude Right']);
+                    newEP.displayDate = ep['Exam Date'];
+                }
+
+                if ((ep['Amplitude Left'] != '') ) {
+                    var newEP = addVEP(USUBJID, 'P100 Amplitude', iMedService.getDate(ep['Exam Date']), 'Left', ep['Amplitude Left']);
+                    newEP.displayDate = ep['Exam Date'];
+                }
+
+                if ((ep['SEP Upper R'] != '') ) {
+                    var newEP = addSEP(USUBJID, 'SEP', iMedService.getDate(ep['Exam Date']), 'Right', 'Upper', ep['SEP Upper R']);
+                    newEP.displayDate = ep['Exam Date'];
+                }
+
+                if ((ep['SEP Upper L'] != '') ) {
+                    var newEP = addSEP(USUBJID, 'SEP', iMedService.getDate(ep['Exam Date']), 'Left', 'Upper', ep['SEP Upper L']);
+                    newEP.displayDate = ep['Exam Date'];
+                }
+
+                if ((ep['SEP Lower R'] != '') ) {
+                    var newEP = addSEP(USUBJID, 'SEP', iMedService.getDate(ep['Exam Date']), 'Right', 'Lower', ep['SEP Lower R']);
+                    newEP.displayDate = ep['Exam Date'];
+                }
+
+                if ((ep['SEP Lower L'] != '') ) {
+                    var newEP = addSEP(USUBJID, 'SEP', iMedService.getDate(ep['Exam Date']), 'Left', 'Lower', ep['SEP Lower L']);
+                    newEP.displayDate = ep['Exam Date'];
+                }
+            }
+        }
+    }
+
+    var CSF_CDISC = function(patientID) {
+        //console.log(values);
+        for (var e = 0; e < values['CS'].length; e++) {
+            if (patientID == values['CS'][e]['Patient ID']) {
+                var lp = values['CS'][e];
+                var LBDTC = iMedService.getDate(lp['Exam Date']);
+
+                var USUBJID = generateOPTID(patientID);
+                if (lp['Result'] != '') {
+                    csfService.addProcedure(USUBJID, LBDTC);
+                    var result = '';
+                    if (lp['Result'] == 'Abnormal MS-atypical')
+                        result = 'Abnormal MS-Atypical';
+                    else if (lp['Result'] == 'Abnormal MS-typical')
+                        result = 'Abnormal MS-Typical';
+                    else
+                        result = lp['Result'];
+                    var newLP = addLab(USUBJID, 'Summary', LBDTC);
+                    newLP.LBNRIND = result;
+                    newLP.displayDate = lp['Exam Date'];
+                    newLP.LBSPEC = "CSF";
+                    newLP.displayLabel = "CSF";
+                }
+
+                if ((lp['Proteins'] != '') ) {
+                    csfService.addProcedure(USUBJID, LBDTC);
+                    var newLP = addLab(USUBJID, 'Total Protein', LBDTC);
+                    newLP.LBORRES = lp['Proteins'];
+                    newLP.LBSPEC = "CSF";
+                    newLP.displayLabel = "CSF";
+                    newLP.displayDate = lp['Exam Date'];
+                }
+
+                if ((lp['Glucose'] != '') ) {
+                    csfService.addProcedure(USUBJID, LBDTC);
+                    var newLP = addLab(USUBJID, 'Glucose', LBDTC);
+                    newLP.LBORRES = lp['Glucose'];
+                    newLP.LBSPEC = "CSF";
+                    newLP.displayLabel = "CSF";
+                    newLP.displayDate = lp['Exam Date'];
+                }
+
+                if ((lp['Albumin'] != '') ) {
+                    csfService.addProcedure(USUBJID, LBDTC);
+                    var newLP = addLab(USUBJID, 'Albumin', LBDTC);
+                    newLP.LBORRES = lp['Albumin'];
+                    newLP.LBSPEC = "CSF";
+                    newLP.displayLabel = "CSF";
+                    newLP.displayDate = lp['Exam Date'];
+                }
+
+                if ((lp['Q Albumin'] != '') ) {
+                    csfService.addProcedure(USUBJID, LBDTC);
+                    var newLP = addLab(USUBJID, 'Q Albumin', LBDTC);
+                    newLP.LBORRES = lp['Q Albumin'];
+                    newLP.LBSPEC = "CSF";
+                    newLP.displayLabel = "CSF";
+                    newLP.displayDate = lp['Exam Date'];
+                }
+
+                if ((lp['lgG'] != '') ) {
+                    csfService.addProcedure(USUBJID, LBDTC);
+                    var newLP = addLab(USUBJID, 'IgG', LBDTC);
+                    newLP.LBORRES = lp['lgG'];
+                    newLP.LBSPEC = "CSF";
+                    newLP.displayLabel = "CSF";
+                    newLP.displayDate = lp['Exam Date'];
+                }
+
+                if ((lp['IgG Index'] != '') ) {
+                    csfService.addProcedure(USUBJID, LBDTC);
+                    var newLP = addLab(USUBJID, 'IgG Index', LBDTC);
+                    newLP.LBORRES = lp['IgG Index'];
+                    newLP.LBSPEC = "CSF";
+                    newLP.displayLabel = "CSF";
+                    newLP.displayDate = lp['Exam Date'];
+                }
+
+                if ((lp['White Cell Count'] != '') ) {
+                    csfService.addProcedure(USUBJID, LBDTC);
+                    var newLP = addLab(USUBJID, 'White Cell Count', LBDTC);
+                    newLP.LBORRES = lp['White Cell Count'];
+                    newLP.LBSPEC = "CSF";
+                    newLP.displayLabel = "CSF";
+                    newLP.displayDate = lp['Exam Date'];
+                }
+
+                if ((lp['Lymphocytes'] != '') ) {
+                    csfService.addProcedure(USUBJID, LBDTC);
+                    var newLP = addLab(USUBJID, 'Lymphocytes', LBDTC);
+                    newLP.LBORRES = lp['Lymphocytes'];
+                    newLP.LBSPEC = "CSF";
+                    newLP.displayLabel = "CSF";
+                    newLP.displayDate = lp['Exam Date'];
+                }
+
+
+            }
+        }
+    }
+
+
+//    40,000
+//    0203 862 3347
+//    Julie
 
     var toCDISC = function () {
         var subjects = [];
@@ -421,11 +673,17 @@ iMedModule.service('iMedData', function($q, Patient,
             exposures.clearAll();
             morphologyServices.clearAll();
             clinicalEvents.clearEvent();
+            laboratoryTestResults.deleteLabTestResults();
+            nervousSystemFindings.deleteNervousSystemFindings();
 
             ID_CDISC(RecordItems, value);
             SV_CDISC(value['Patient ID']);
             RE_CDISC(value['Patient ID']);
             TR_CDISC(value['Patient ID']);
+            MR_CDISC(value['Patient ID']);
+            LB_CDISC(value['Patient ID']);
+            VEP_CDISC(value['Patient ID']);
+            CSF_CDISC(value['Patient ID']);
 
             for (var ce = 0; ce < medicalHistory.getMedicalHistory().length; ce++) {
                 var event = medicalHistory.getMedicalHistory()[ce];
@@ -475,6 +733,18 @@ iMedModule.service('iMedData', function($q, Patient,
                 RecordItems.push(recordItem);
             }
 
+            for (var lb = 0; lb < laboratoryTestResults.getLabTestResults().length; lb++) {
+                var labTest = laboratoryTestResults.getLabTestResults()[lb];
+                var recordItem = iMedService.getRecordItem(labTest);
+                RecordItems.push(recordItem);
+            }
+
+            for (var ep = 0; ep < nervousSystemFindings.getNervousSystemFindings().length; ep++) {
+                var epTest = nervousSystemFindings.getNervousSystemFindings()[ep];
+                var recordItem = iMedService.getRecordItem(epTest);
+                RecordItems.push(recordItem);
+            }
+
             subjects.push(root);
         }
 
@@ -486,12 +756,20 @@ iMedModule.service('iMedData', function($q, Patient,
         //return values[index];
     }
 
+    var getNHS_ID = function(s) {
+        //GOSH
+        return values['ID'][s]['Patient Code'];
+        //return generateOPTID(values['ID'][s]['Patient ID']);
+        //return values[index];
+    }
+
     return {
         getData: getData,
         print: print,
         setData: setData,
         toCDISC: toCDISC,
-        getID: getID
+        getID: getID,
+        getNHS_ID: getNHS_ID
     }
 
 

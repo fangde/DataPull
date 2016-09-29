@@ -38,6 +38,18 @@ procedureModule.service('procedures', function (){
         return procedures;
     }
 
+    var getProcedureByTRTAndDate = function(PRTRT, PRSTDTC)
+    {
+        var validProcedures = [];
+        for (var p = 0; p < procedures.length; p++) {
+            if ((procedures[p].PRTRT==PRTRT)
+                &&(procedures[p].PRSTDTC.toDateString()==PRSTDTC.toDateString())){
+                validProcedures.push(procedures[p]);
+            }
+        }
+        return validProcedures;
+    }
+
     var generateSEQ = function () {
         var SEQs = compileProcedures();
         if (SEQs.length > 0) {
@@ -73,7 +85,8 @@ procedureModule.service('procedures', function (){
     return {
         addProcedure:addProcedure,
         getProcedures: getProcedures,
-        clearAll: clearAll
+        clearAll: clearAll,
+        getProcedureByTRTAndDate: getProcedureByTRTAndDate
 
     };
 })

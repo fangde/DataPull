@@ -6,25 +6,8 @@
  * To change this template use File | Settings | File Templates.
  */
 
-var laboratoryTestResultModule = angular.module('Optimise.laboratoryTestResult', ["ngTable"]);
+var laboratoryTestResultModule = angular.module('Optimise.laboratoryTestResult', []);
 
-
-laboratoryTestResultModule.directive('labEntry', function() {
-    return {
-        restrict: 'AE',
-        replace: 'true',
-        templateUrl:'scripts/js/laboratory/laboratoryTests.html'
-    };
-});
-
-
-laboratoryTestResultModule.directive('evokedEntry', function() {
-    return {
-        restrict: 'AE',
-        replace: 'true',
-        templateUrl:'scripts/js/laboratory/evokedPotentials.html'
-    };
-});
 
 laboratoryTestResultModule.factory('serologicalTestsVocab', function() {
 
@@ -464,7 +447,7 @@ laboratoryTestResultModule.factory('LaboratoryTestResult', function() {
     }
 })
 
-laboratoryTestResultModule.service('laboratoryTestResults', function(LaboratoryTestResult, records, viewService){
+laboratoryTestResultModule.service('laboratoryTestResults', function(LaboratoryTestResult){
     var labTestResults = [];
 
     var deleteLabTestResults = function() {
@@ -601,8 +584,6 @@ laboratoryTestResultModule.service('laboratoryTestResults', function(LaboratoryT
     var addResult = function (result){
         result.LBSEQ = generateSEQ();
         labTestResults.push(result);
-        if (!viewService.workOffline())
-            records.saveRecord(result);
     }
 
     var editResult = function (res, recordToChange, valueToChange){

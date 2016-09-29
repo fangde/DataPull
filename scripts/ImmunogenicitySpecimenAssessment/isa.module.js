@@ -6,7 +6,7 @@
  * To change this template use File | Settings | File Templates.
  */
 
-var immunogenicitySpecimenAssessmentModule = angular.module('Optimise.immunogenicitySpecimenAssessment',['Optimise.view','Optimise.record']);
+var immunogenicitySpecimenAssessmentModule = angular.module('Optimise.immunogenicitySpecimenAssessment',[]);
 
 immunogenicitySpecimenAssessmentModule.factory('ImmunogenicitySpecimenAssessment', function() {
     return function(USUBJID, ISTEST) {
@@ -36,9 +36,7 @@ immunogenicitySpecimenAssessmentModule.factory('ImmunogenicitySpecimenAssessment
     }
 });
 
-immunogenicitySpecimenAssessmentModule.service('immunogenicitySpecimenAssessments', function(ImmunogenicitySpecimenAssessment,
-                                                                                            viewService,
-                                                                                            records){
+immunogenicitySpecimenAssessmentModule.service('immunogenicitySpecimenAssessments', function(ImmunogenicitySpecimenAssessment){
     var immunogenicitySpecimenAssessments = [];
 
     var deleteISAs = function() {

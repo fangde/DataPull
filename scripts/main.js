@@ -17,6 +17,9 @@ var myData = angular.module('Data', ['Data.parser',
     'Optimise.subjectVisit',
     'Optimise.questionnaire',
     'Optimise.exposure',
-    'Optimise.morphology']);
+    'Optimise.morphology',
+    'Optimise.laboratoryTestResult',
+    'Optimise.nervousSystemFindings',
+    'Optimise.csf']);
 
 

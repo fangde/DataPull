@@ -7,7 +7,7 @@
  */
 
 var nervousSystemFindingModule = angular.module('Optimise.nervousSystemFindings',
-    ['Optimise.view', 'Optimise.record']);
+    []);
 
 nervousSystemFindingModule.factory('NervousSystemFinding', function() {
     return function(USUBJID, NVTEST) {
@@ -38,7 +38,7 @@ nervousSystemFindingModule.factory('NervousSystemFinding', function() {
     };
 });
 
-nervousSystemFindingModule.service('nervousSystemFindings', function(NervousSystemFinding, viewService, records){
+nervousSystemFindingModule.service('nervousSystemFindings', function(NervousSystemFinding){
     var nervousSystemFindings = [];
     var currentCollectionDate = new Date();
 
@@ -198,15 +198,11 @@ nervousSystemFindingModule.service('nervousSystemFindings', function(NervousSyst
         var RECTOCHANGE = {fieldName:'NVORRES', value: NVORES};
         var idRecord = [USUBJID, NVSEQ];
         var valueRecord = [RECTOCHANGE];
-        if (!viewService.workOffline())
-            records.editRecord(idRecord, valueRecord);
     }
 
     var addFinding = function (NV){
         NV.NVSEQ = generateSEQ();
         nervousSystemFindings.push(NV);
-        if (!viewService.workOffline())
-            records.saveRecord(NV);
     }
 
     var deleteFinding = function (NV){

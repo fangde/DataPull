@@ -127,7 +127,7 @@ dataModule.controller('dataCtrl', function ($scope, $q,
         //console.log(urlData);
 
         urlData.then(function (data) {
-            console.log(data);
+            //console.log(data);
             //var result = data.replace(/[r|rn]/g, "/n");
             var objects = dataService.stringToObject(data);
             goshData.setData(objects);
@@ -149,7 +149,7 @@ dataModule.controller('dataCtrl', function ($scope, $q,
 
     var getIMedDomain = function(file) {
         return $q(function(resolve, reject) {
-            setTimeout(function() {
+            //setTimeout(function() {
                 if (file != null) {
                     var promise = iMedData.getData(file);
                     promise.then(function(data) {
@@ -160,18 +160,20 @@ dataModule.controller('dataCtrl', function ($scope, $q,
                         alert('Failed: File Not found');
                     });
                 }
-            }, 1000)});
+        });
+            //}, 0)});
     }
 
     var readImedFiles = function(dataFile, domainData) {
         return $q(function(resolve, reject) {
-            setTimeout(function() {
+            //setTimeout(function() {
                 var domain = "ID";
                 var IDpromise = getIMedDomain(dataFile[domain]);
                 IDpromise.then(function(data) {
                     console.log(domain);
                     if (data != [])
                         domainData[domain] = data;
+                    console.log(data);
 
                     domain = "VI";
                     var VIPromise = getIMedDomain(dataFile[domain]);
@@ -191,77 +193,78 @@ dataModule.controller('dataCtrl', function ($scope, $q,
                             TRPromise.then(function(data) {
                                 console.log(domain);
                                 domainData[domain] = data;
-                                resolve(domain);
-//
-//                                domain = "EP";
-//                                var EPPromise = getIMedDomain(dataFile[domain]);
-//                                EPPromise.then(function(data) {
-//                                    console.log(domain);
-//                                    domainData[domain] = data;
-//
+                                //resolve(domain);
+
+                                domain = "EP";
+                                var EPPromise = getIMedDomain(dataFile[domain]);
+                                EPPromise.then(function(data) {
+                                    console.log(domain);
+                                    domainData[domain] = data;
+
 //                                    domain = "FH";
 //                                    var FHPromise = getIMedDomain(dataFile[domain]);
 //                                    FHPromise.then(function(data) {
-//                                        console.log(domain);
+//                                        //console.log(domain);
 //                                        domainData[domain] = data;
-//
-//                                        domain = "LT";
-//                                        var LTPromise = getIMedDomain(dataFile[domain]);
-//                                        LTPromise.then(function(data) {
-//                                            console.log(domain);
-//                                            domainData[domain] = data;
-//
-//                                            domain = "MR";
-//                                            var MRPromise = getIMedDomain(dataFile[domain]);
-//                                            MRPromise.then(function(data) {
-//                                                console.log(domain);
-//                                                domainData[domain] = data;
-//
+
+                                        domain = "LT";
+                                        var LTPromise = getIMedDomain(dataFile[domain]);
+                                        LTPromise.then(function(data) {
+                                            console.log(domain);
+                                            domainData[domain] = data;
+
+                                            domain = "MR";
+                                            var MRPromise = getIMedDomain(dataFile[domain]);
+                                            MRPromise.then(function(data) {
+                                                console.log(domain);
+                                                domainData[domain] = data;
+
 //                                                domain = "PG";
 //                                                var PGPromise = getIMedDomain(dataFile[domain]);
 //                                                PGPromise.then(function(data) {
-//                                                    console.log(domain);
+//                                                    //console.log(domain);
 //                                                    domainData[domain] = data;
-//
-//                                                    domain = "RE";
-//                                                    var REPromise = getIMedDomain(dataFile[domain]);
-//                                                    REPromise.then(function(data) {
-//                                                        console.log(domain);
-//                                                        domainData[domain] = data;
-//
+
+                                                    domain = "RE";
+                                                    var REPromise = getIMedDomain(dataFile[domain]);
+                                                    REPromise.then(function(data) {
+                                                        console.log(domain);
+                                                        domainData[domain] = data;
+
 //                                                        domain = "RL";
 //                                                        var RLPromise = getIMedDomain(dataFile[domain]);
 //                                                        RLPromise.then(function(data) {
-//                                                            console.log(domain);
+//                                                            //console.log(domain);
 //                                                            domainData[domain] = data;
-//
-//                                                            domain = "TR";
-//                                                            var TRPromise = getIMedDomain(dataFile[domain]);
-//                                                            TRPromise.then(function(data) {
-//                                                                console.log(domain);
-//                                                                domainData[domain] = data;
-//
-//                                                                domain = "AE";
-//                                                                var AEPromise = getIMedDomain(dataFile[domain]);
-//                                                                AEPromise.then(function(data) {
-//                                                                    console.log(domain);
-//                                                                    domainData[domain] = data;
-//
-//                                                                    resolve(domain);
-//                                                                })
-//                                                            })
-//                                                        })
-//                                                    })
-//                                                })
-//                                            })
-//                                        })
-//                                    })
-//                                })
+
+                                                            domain = "TR";
+                                                            var TRPromise = getIMedDomain(dataFile[domain]);
+                                                            TRPromise.then(function(data) {
+                                                                console.log(domain);
+                                                                domainData[domain] = data;
+
+                                                                domain = "CS";
+                                                                var CSPromise = getIMedDomain(dataFile[domain]);
+                                                                CSPromise.then(function(data) {
+                                                                    console.log(domain);
+                                                                    domainData[domain] = data;
+
+                                                                    resolve(domainData);
+                                                                })
+                                                            })
+                                                        //})
+                                                    })
+                                                //})
+                                            })
+                                        //})
+                                    })
+                                })
                            })
                         })
                     })
                 })
-        }, 1000)});
+       // }, 0)});
+        });
     }
 
     $scope.readIMed = function() {
@@ -279,8 +282,7 @@ dataModule.controller('dataCtrl', function ($scope, $q,
         }
 
         var promise = readImedFiles(dataFile, domainData);
-        promise.then(function() {
-            //console.log(domainData);
+        promise.then(function(domainData) {
             iMedData.setData(domainData, domains);
             $scope.values = iMedData.print(domains);
             var subjects = iMedData.toCDISC();
@@ -288,49 +290,96 @@ dataModule.controller('dataCtrl', function ($scope, $q,
             $scope.jsonValues = "";
             for (var s = 0; s < subjects.length; s++) {
                 $scope.jsonValues = angular.toJson(subjects[s]);
-                //console.log($scope.jsonValues);
-//
-                var blob = new Blob([$scope.jsonValues], { type: "text/plain;charset=utf-8" });
-                var id = iMedData.getID(s);
-                var url = id.concat('.json');
-                saveAs(blob, url);
+                saveJSON($scope.jsonValues, iMedData.getID(s));
+                // used for GOSH
+                //downloadToDriveiMED($scope.jsonValues, iMedData.getNHS_ID(s), iMedData.getID(s));
+                downloadToDrive($scope.jsonValues, iMedData.getID(s));
             }
         }), function() {
             alert('Failed: ');
         };
     };
 
+    var subjects = localStorage.getItem("NHS_OPT_Map");
+    console.log(subjects);
+
     var downloadToDrive = function (data, USUBJID) {
-        localStorage.setItem(USUBJID, data);
-        //console.log(localStorage.getItem(USUBJID));
-        var subjects = localStorage.getItem("NHS_OPT_Map");
-
-        if (subjects === null){
-            localStorage.setItem("NHS_OPT_Map", []);
-            subjects = [];
-        }
-        else
-            subjects = JSON.parse(subjects);
-
         if (!IDExists(USUBJID)){
+            localStorage.setItem(USUBJID, data);
+            //console.log(localStorage.getItem(USUBJID));
+            var subjects = localStorage.getItem("NHS_OPT_Map");
+
+            if (subjects === null){
+                localStorage.setItem("NHS_OPT_Map", []);
+                subjects = [];
+            }
+            else
+                subjects = JSON.parse(subjects);
+
             var newPair = {'NHS_USUBJID': USUBJID,
                 'USUBJID': USUBJID};
             subjects.push(newPair);
             localStorage.setItem("NHS_OPT_Map",JSON.stringify(subjects));
+        }
+        else {
+            console.log("NHS_USUBJID: "+USUBJID+" already in database");
         }
     }
 
     var IDExists = function (OPT_ID) {
         var subjectList = localStorage.getItem('NHS_OPT_Map');
 
-        if (subjectList.length == 0) {
-            return false;
+        if (subjectList != null ) {
+                if (subjectList.length == 0){
+                return false;
+            }
+            else {
+                subjectList = JSON.parse(subjectList);
+                for (var s = 0; s < subjectList.length; s++) {
+                    if (subjectList[s].USUBJID == OPT_ID) {
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+
+    var downloadToDriveiMED = function (data, NHS_USUBJID, USUBJID) {
+        if (!IDExistsIMed(NHS_USUBJID)){
+            localStorage.setItem(USUBJID, data);
+            //console.log(localStorage.getItem(USUBJID));
+            var subjects = localStorage.getItem("NHS_OPT_Map");
+
+            if (subjects === null){
+                localStorage.setItem("NHS_OPT_Map", []);
+                subjects = [];
+            }
+            else
+                subjects = JSON.parse(subjects);
+
+            var newPair = {'NHS_USUBJID': NHS_USUBJID,
+                'USUBJID': USUBJID};
+            subjects.push(newPair);
+            localStorage.setItem("NHS_OPT_Map",JSON.stringify(subjects));
         }
         else {
-            subjectList = JSON.parse(subjectList);
-            for (var s = 0; s < subjectList.length; s++) {
-                if (subjectList[s].USUBJID == OPT_ID) {
-                    return true;
+            console.log("NHS_USUBJID: "+NHS_USUBJID+" already in database");
+        }
+    }
+
+    var IDExistsIMed = function (OPT_ID) {
+        var subjectList = localStorage.getItem('NHS_OPT_Map');
+
+        if (subjectList != null ) {
+            if (subjectList.length == 0){
+                return false;
+            }
+            else {
+                subjectList = JSON.parse(subjectList);
+                for (var s = 0; s < subjectList.length; s++) {
+                    if (subjectList[s].NHS_USUBJID == OPT_ID) {
+                        return true;
+                    }
                 }
             }
         }

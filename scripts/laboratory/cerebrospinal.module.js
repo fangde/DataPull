@@ -1,12 +1,5 @@
 var csfModule = angular.module('Optimise.csf',[]);
 
-csfModule.directive('csfEntry', function() {
-    return {
-        restrict: 'AE',
-        replace: 'true',
-        templateUrl:'scripts/js/laboratory/cerebrospinal.html'
-    };
-});
 
 csfModule.factory('csfVocab', function() {
     var csfTests = {}

@@ -115,6 +115,7 @@ goshModule.service('goshData', function($http, $q, Patient,
         //return "test";
     }
 
+
     var setData = function (objects) {
         headings = Object.keys(objects[0]);
         values = objects.slice(0);
@@ -134,6 +135,11 @@ goshModule.service('goshData', function($http, $q, Patient,
         });
 
         return display;
+    }
+
+
+    var generateOPTID = function(patientID) {
+        return 'OPT-Yael-03-'+patientID;
     }
 
     //ID,Recruitment,Age,DOB,Gender,DiseaseDuration,Onset,Diagnosis,Treatment,RelapseDate,FunctionalSystemsAffected,EDSS,9HPT_L1,9HPT_R1,9HPT_L2,9HPT_R2,25Ft_1,25Ft_2
@@ -171,18 +177,6 @@ goshModule.service('goshData', function($http, $q, Patient,
             fieldNameIndex++;
             RecordItems.push(dmRecordItem);
 
-//            var CE = new clinicalEvent(value['Name'],'Multiple Sclerosis Relapse','MS Relapse');
-//            CE.CESTDTC = goshService.getDate(value['Last relapse']);
-//            CE.CEENDTC = goshService.advanceDate(CE.CESTDTC, 7);
-//            CE.displayDate = goshService.getDateString(CE.CESTDTC);
-//            clinicalEvents.addEvent(CE);
-//            for (var ce = 0; ce < clinicalEvents.getClinicalEvents().length; ce++) {
-//                var event = clinicalEvents.getClinicalEvents()[ce];
-//                //var recordItem = {"fieldName":fieldNameIndex.toString(), value:goshService.getRecordItem(event)};
-//                var recordItem = goshService.getRecordItem(event);
-//                fieldNameIndex++;
-//                RecordItems.push(recordItem);
-//            }
             var newVisit = new subjectVisit(value['Name']);
             newVisit.SVSTDTC = goshService.getDate(value['DateOfPresentation']);
             subjectVisits.addVisit(newVisit);
