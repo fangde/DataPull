@@ -11,7 +11,8 @@ var dataModule = angular.module('Data.parser',['Data.gourab',
     'Optimise.patient',
     'Data.iMed',
     'Data.gosh',
-    'Data.chx']);
+    'Data.chx',
+    'Data.arie']);
 
 dataModule.service('dataService', function () {
     var stringToObject = function (values) {
@@ -26,7 +27,7 @@ dataModule.service('dataService', function () {
 dataModule.controller('dataCtrl', function ($scope, $q,
                                             $rootScope,
                                             dataService,
-                                            gourabData, joelData, iMedData, goshData, chxData) {
+                                            gourabData, joelData, iMedData, goshData, chxData, arieData) {
     $scope.readGourab = function() {
         var urlData = gourabData.getData();
 
@@ -143,6 +144,30 @@ dataModule.controller('dataCtrl', function ($scope, $q,
 //                saveAs(blob, url);
                 saveJSON($scope.jsonValues, goshData.getID(s));
                 downloadToDrive($scope.jsonValues, goshData.getID(s));
+            }
+        })
+    };
+
+    $scope.readArie = function() {
+
+        var file = document.getElementById('arieFile').files;
+        console.log(file[0]);
+
+        var urlData = arieData.getData(file[0]);
+        console.log(urlData);
+
+        urlData.then(function (data) {
+            //console.log(data);
+
+            var objects = dataService.stringToObject(data);
+            arieData.setData(objects);
+            $scope.values = arieData.print();
+            var subjects = arieData.toCDISC();
+            for (var s = 0; s < subjects.length; s++) {
+
+                $scope.jsonValues = angular.toJson(subjects[s]);
+                //saveJSON($scope.jsonValues, arieData.getID(s));
+                downloadToDrive($scope.jsonValues, arieData.getID(s));
             }
         })
     };
@@ -301,10 +326,9 @@ dataModule.controller('dataCtrl', function ($scope, $q,
     };
 
     var subjects = localStorage.getItem("NHS_OPT_Map");
-    console.log(subjects);
 
     var downloadToDrive = function (data, USUBJID) {
-        if (!IDExists(USUBJID)){
+        //if (!IDExists(USUBJID)){
             localStorage.setItem(USUBJID, data);
             //console.log(localStorage.getItem(USUBJID));
             var subjects = localStorage.getItem("NHS_OPT_Map");
@@ -320,10 +344,10 @@ dataModule.controller('dataCtrl', function ($scope, $q,
                 'USUBJID': USUBJID};
             subjects.push(newPair);
             localStorage.setItem("NHS_OPT_Map",JSON.stringify(subjects));
-        }
-        else {
-            console.log("NHS_USUBJID: "+USUBJID+" already in database");
-        }
+//        }
+//        else {
+//            console.log("NHS_USUBJID: "+USUBJID+" already in database");
+//        }
     }
 
     var IDExists = function (OPT_ID) {

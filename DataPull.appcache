@@ -18,6 +18,7 @@ scripts/joelModule.js
 scripts/iMedModule.js
 scripts/goshModule.js
 scripts/chxModule.js
+scripts/arieModule.js
 scripts/main.js
 scripts/dataController.js
 

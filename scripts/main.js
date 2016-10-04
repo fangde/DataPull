@@ -7,7 +7,7 @@
  */
 
 var myData = angular.module('Data', ['Data.parser',
-    'Data.gourab', 'Data.joel', 'Data.iMed', 'Data.gosh','Data.chx',
+    'Data.gourab', 'Data.joel', 'Data.iMed', 'Data.gosh','Data.chx','Data.arie',
     'Optimise.patient',
     'Optimise.clinicalEvent',
     'Optimise.medicalHistory',
