@@ -76,73 +76,121 @@ dataModule.controller('dataCtrl', function ($scope, $q,
         })
     };
 
-    $scope.readCHX = function() {
-        var fingalimodURL = chxData.getFingolimodData();
-        fingalimodURL.then(function (fingalimodData) {
-            var fingalimodObjects = dataService.stringToObject(fingalimodData);
-            var fingalimodValues = chxData.setData(fingalimodObjects);
-            //var fingalimodValues = chxData.print();
-            var fingalimodSubjects = chxData.toCDISC_Fingalimod();
 
-            var tecfideraURL = chxData.getTecfideraData();
+    var getAccessDomain = function(file) {
+        return $q(function(resolve, reject) {
+            if (file != null) {
+                var promise = chxData.getData(file);
+                promise.then(function(data) {
+                    var dataObject = dataService.stringToObject(data);
+                    resolve (dataObject);
+                }, function() {
+                    alert('Failed: File Not found');
+                });
+            }
+        });
+    }
+
+    var readAccessFiles = function(dataFile, domainData) {
+
+        return $q(function(resolve, reject) {
+            //setTimeout(function() {
+            var domain = "DM";
+            var IDpromise = getAccessDomain(dataFile[domain]);
+            IDpromise.then(function(data) {
+                if (data != [])
+                    domainData[domain] = data;
+                domain = "EX";
+                var VIPromise = getAccessDomain(dataFile[domain]);
+                VIPromise.then(function(data) {
+
+                    domainData[domain] = data;
+
+                    domain = "CE";
+                    var CSPromise = getAccessDomain(dataFile[domain]);
+                    CSPromise.then(function(data) {
+                        domainData[domain] = data;
+                        resolve(domainData);
+
+                    })
+
+                })
+            })
+        });
+    }
+
+    $scope.readCHX = function() {
+        var fingolimodFile = document.getElementById('fingolimodFile').files;
+        var tecfideraFile = document.getElementById('tecfideraFile').files;
+        var accessFiles = document.getElementById('accessFiles').files;
+
+        var fingolimodURL = chxData.getData(fingolimodFile[0]);
+        fingolimodURL.then(function (fingolimodData) {
+            var fingolimodObjects = dataService.stringToObject(fingolimodData);
+            var fingolimodValues = chxData.setData(fingolimodObjects);
+            $scope.values = chxData.print();
+            var fingolimodSubjects = chxData.toCDISC_Fingolimod();
+            for (var s = 0; s < fingolimodSubjects.length; s++) {
+            //for (var s = 0; s < 5; s++) {
+                $scope.jsonValues = angular.toJson(fingolimodSubjects[s]);
+                downloadToDriveiMED($scope.jsonValues, chxData.getFingolimodName(fingolimodValues, s), chxData.getFingolimodID(fingolimodValues, s));
+
+            }
+
+            var tecfideraURL = chxData.getData(tecfideraFile[0]);
             tecfideraURL.then(function (tecfideraData) {
                 var tecfideraObjects = dataService.stringToObject(tecfideraData);
                 var tecfideraValues = chxData.setData(tecfideraObjects);
                 //var tecfideraValues = chxData.print();
                 //console.log(tecfideraValues);
-                //$scope.values = tecfideraValues;
-                var tecfideraSubjects = chxData.toCDISC_Tecfidera(fingalimodValues);
+                $scope.values = chxData.print();
+                var tecfideraSubjects = chxData.toCDISC_Tecfidera(tecfideraValues);
 
-
-
-
-//            //for (var s = 0; s < subjects.length; s++) {
-                for (var s = 0; s < 1; s++) {
-                    $scope.jsonValues = angular.toJson(fingalimodSubjects[s]);
-                    var blob = new Blob([$scope.jsonValues], { type: "text/plain;charset=utf-8" });
-                    var id = chxData.getFingolimodID(fingalimodValues, s);
-                    var url = id.concat('.json');
-                    //console.log(url);
-                    saveAs(blob, url);
-                }
-
-                for (var s = 0; s < 1; s++) {
+                for (var s = 0; s < tecfideraSubjects.length; s++) {
+                //for (var s = 0; s < 5; s++) {
                     $scope.jsonValues = angular.toJson(tecfideraSubjects[s]);
-                    var blob = new Blob([$scope.jsonValues], { type: "text/plain;charset=utf-8" });
-                    var id = chxData.getTecfideraID(tecfideraValues, s);
-                    var url = id.concat('.json');
-                    //console.log(url);
-                    saveAs(blob, url);
+                    downloadToDriveiMED($scope.jsonValues, chxData.getTecfideraName(tecfideraValues, s), chxData.getTecfideraID(tecfideraValues, s));
                 }
-            })
-        })
+
+                var domains = [];
+                var dataFile = [];
+                var domainData = [];
+                for (var f = 0; f < accessFiles.length; f++) {
+                    var domainName = accessFiles[f].name.substr(0, 2);;
+                    domains.push(domainName);
+                    dataFile[domainName] = accessFiles[f];
+                }
+                var promise = readAccessFiles(dataFile, domainData);
+                promise.then(function(domainData) {
+                    var accessValues = chxData.setDataFromAccess(domainData, domains);
+                    $scope.values = chxData.printAccess(domains);
+                    var subjects = chxData.toCDISC_Access();
+
+                    $scope.jsonValues = "";
+                    for (var s = 0; s < subjects.length; s++) {
+                    //for (var s = 0; s < 5; s++) {
+                        $scope.jsonValues = angular.toJson(subjects[s]);
+                        downloadToDriveiMED($scope.jsonValues, chxData.getAccessName(s), chxData.getAccessID(s));
+                    }
+                }), function() {
+                    alert('Failed: ');
+                };
+           })
+        });
+
     };
 
 
     $scope.readGOSH = function() {
-
         var file = document.getElementById('yaelFile').files;
-        //console.log(file[0]);
-
         var urlData = goshData.getData(file[0]);
-        //console.log(urlData);
-
         urlData.then(function (data) {
-            //console.log(data);
-            //var result = data.replace(/[r|rn]/g, "/n");
             var objects = dataService.stringToObject(data);
             goshData.setData(objects);
-            //$scope.values = goshData.print();
+            $scope.values = goshData.print();
             var subjects = goshData.toCDISC();
             for (var s = 0; s < subjects.length; s++) {
-            //for (var s = 0; s < 1; s++) {
                 $scope.jsonValues = angular.toJson(subjects[s]);
-//
-//                var blob = new Blob([$scope.jsonValues], { type: "text/plain;charset=utf-8" });
-//                var id = goshData.getID(s);
-//                var url = id.concat('.json');
-//                saveAs(blob, url);
-                saveJSON($scope.jsonValues, goshData.getID(s));
                 downloadToDrive($scope.jsonValues, goshData.getID(s));
             }
         })
@@ -166,7 +214,6 @@ dataModule.controller('dataCtrl', function ($scope, $q,
             for (var s = 0; s < subjects.length; s++) {
 
                 $scope.jsonValues = angular.toJson(subjects[s]);
-                //saveJSON($scope.jsonValues, arieData.getID(s));
                 downloadToDrive($scope.jsonValues, arieData.getID(s));
             }
         })
@@ -328,9 +375,9 @@ dataModule.controller('dataCtrl', function ($scope, $q,
     var subjects = localStorage.getItem("NHS_OPT_Map");
 
     var downloadToDrive = function (data, USUBJID) {
-        //if (!IDExists(USUBJID)){
+        if (!IDExists(USUBJID)){
             localStorage.setItem(USUBJID, data);
-            //console.log(localStorage.getItem(USUBJID));
+            console.log(localStorage.getItem(USUBJID));
             var subjects = localStorage.getItem("NHS_OPT_Map");
 
             if (subjects === null){
@@ -343,11 +390,13 @@ dataModule.controller('dataCtrl', function ($scope, $q,
             var newPair = {'NHS_USUBJID': USUBJID,
                 'USUBJID': USUBJID};
             subjects.push(newPair);
+
             localStorage.setItem("NHS_OPT_Map",JSON.stringify(subjects));
-//        }
-//        else {
-//            console.log("NHS_USUBJID: "+USUBJID+" already in database");
-//        }
+            //saveJSON(data, USUBJID);
+        }
+        else {
+            console.log("NHS_USUBJID: "+USUBJID+" already in database");
+        }
     }
 
     var IDExists = function (OPT_ID) {
@@ -385,6 +434,7 @@ dataModule.controller('dataCtrl', function ($scope, $q,
                 'USUBJID': USUBJID};
             subjects.push(newPair);
             localStorage.setItem("NHS_OPT_Map",JSON.stringify(subjects));
+            //saveJSON(data, USUBJID);
         }
         else {
             console.log("NHS_USUBJID: "+NHS_USUBJID+" already in database");

@@ -59,7 +59,7 @@ chxModule.service('chxService', function() {
     }
 })
 
-chxModule.service('chxData', function($http, Patient,
+chxModule.service('chxData', function($http, $q, Patient,
                                             clinicalEvent, clinicalEvents,
                                             MedicalEvent, medicalHistory,
                                             findingsAbout, findingAbout,
@@ -72,6 +72,25 @@ chxModule.service('chxData', function($http, Patient,
 
     var headings = [];
     var values = [];
+
+    var getData = function (sourceFile) {
+        return $q(function(resolve, reject) {
+            var textType = /csv.*/;
+            if (sourceFile.type.match(textType)) {
+                var reader = new FileReader();
+                reader.onloadend = (function (e) {
+                    resolve(e.target.result);
+                });
+                reader.readAsText(sourceFile);
+            } else {
+                reject("File not supported!");
+            }
+        });
+    }
+
+    var generateOPTID = function(patientID) {
+        return 'OPT-CX-03-'+patientID;
+    }
 
     var getFingolimodData = function () {
         var Url   = "data/CHX/Fingolimod.csv";
@@ -99,6 +118,17 @@ chxModule.service('chxData', function($http, Patient,
         return values;
     }
 
+    var setDataFromAccess = function (domainData, domains) {
+        //var domains = Object.keys(domainData);
+        for (var d = 0; d < domains.length; d++) {
+            if ((domainData[domains[d]] != null)&&(domainData[domains[d]].length > 0)) {
+                headings[domains[d]] = Object.keys(domainData[domains[d]][0]);
+                values[domains[d]] = domainData[domains[d]].slice(0);
+            }
+        }
+        //console.log(domains);
+    }
+
     var print = function () {
         var display = "";
         angular.forEach(values, function (value, key, object) {
@@ -115,7 +145,27 @@ chxModule.service('chxData', function($http, Patient,
         return display;
     }
 
-    var toCDISC_Fingalimod = function () {
+    var printAccess = function(domains) {
+        var display = "";
+        //console.log(values);
+        //console.log(headings);
+
+        angular.forEach(domains, function (domain) {
+            angular.forEach(values[domain], function (value) {
+                display=display.concat(headings[domain][0]+"\t"+value[headings[domain][0]]+"\n");
+                for (var i = 1; i < headings[domain].length; i++) {
+                    var headingName = headings[domain][i];
+                    if (headingName != null)
+                        display = display.concat(headings[domain][i]+"\t\t\t"+value[headingName]+"\n");
+                }
+                display=display.concat("\n\n");
+            });
+        });
+
+        return display;
+    }
+
+    var toCDISC_Fingolimod = function () {
         var subjects = [];
         for (var s = 0; s < values.length; s++) {
             var value = values[s];
@@ -133,16 +183,18 @@ chxModule.service('chxData', function($http, Patient,
             clinicalEvents.clearAll();
             exposures.clearAll();
 
-            var name = value['Surname'] +", "+ value['FirstName']
-            var DM = new Patient(name);
+            var hospNumber = generateOPTID(value['HospNo']);
+            var DM = new Patient(hospNumber);
             DM.BRTHDTC = chxService.getDate(value['DOB']);
+            DM.SUBJID = value['Surname'] +", "+ value['FirstName'];
+            DM.NHS_USUBJID = value['Surname'] +", "+ value['FirstName'] +" ("+value['DOB']+")";;
             var dmRecordItem = chxService.getRecordItem(DM);
             fieldNameIndex++;
             RecordItems.push(dmRecordItem);
 
 
-            var MH = new MedicalEvent(name,'Primary Diagnosis');
-            MH.MHTERM = value['MSType'];
+            var MH = new MedicalEvent(hospNumber,'Primary Diagnosis');
+            MH.MHTERM = value['MStype'];
             MH.MHSCAT = "Onset Course";
             MH.MHSTDTC = chxService.getDate(value['dateDx']);
             MH.displaySTDTC = MH.MHSTDTC.getFullYear();
@@ -157,7 +209,7 @@ chxModule.service('chxData', function($http, Patient,
                 RecordItems.push(recordItem);
             }
 
-            var newExposure = new Exposure (name, 'Fingalimod');
+            var newExposure = new Exposure (hospNumber, 'Fingalimod');
             newExposure.EXSTDTC = chxService.getDate(value['DateStarted']);
             if (value['DateStopped'] != "")
                 newExposure.EXENDTC = chxService.getDate(value['DateStopped']);
@@ -211,16 +263,18 @@ chxModule.service('chxData', function($http, Patient,
             clinicalEvents.clearAll();
             exposures.clearAll();
 
-            var name = value['Patient Surname '] +", "+ value['Patient First name '];
-            if (!subjectsExists(existingSubjects, name)) {
-                var DM = new Patient(name);
-                DM.BRTHDTC = chxService.getDate(value['DOB ']);
-                var dmRecordItem = chxService.getRecordItem(DM);
-                fieldNameIndex++;
-                RecordItems.push(dmRecordItem);
-            }
+            var NHS_USUBJID = value['Patient Surname '] +", "+ value['Patient First name ']+" ("+value['DOB ']+")";;
+            var USUBJID = generateOPTID(value['Hospital No ']);
+            //if (!subjectsExists(existingSubjects, name)) {
+            var DM = new Patient(USUBJID);
+            DM.BRTHDTC = chxService.getDate(value['DOB ']);
+            DM.NHS_USUBJID = NHS_USUBJID;
+            var dmRecordItem = chxService.getRecordItem(DM);
+            fieldNameIndex++;
+            RecordItems.push(dmRecordItem);
+            //}
 
-            var MH = new MedicalEvent(name,'Primary Diagnosis');
+            var MH = new MedicalEvent(USUBJID,'Primary Diagnosis');
             MH.MHTERM = 'Relapse Remitting Multiple Sclerosis';
             MH.MHSCAT = "Onset Course";
             MH.MHSTDTC = chxService.getDate(value['Diagnosis']);
@@ -237,7 +291,7 @@ chxModule.service('chxData', function($http, Patient,
             }
 
             if (value['Start Date'] != "") {
-                var newExposure = new Exposure (name, 'Dimethyl fumarate');
+                var newExposure = new Exposure (USUBJID, 'Dimethyl fumarate');
                 newExposure.EXSTDTC = chxService.getDate(value['Start Date']);
                 if (value['DateStopped'] != "")
                     newExposure.EXENDTC = chxService.getDate(value['Date']);
@@ -261,25 +315,182 @@ chxModule.service('chxData', function($http, Patient,
         return subjects;
     }
 
+    var addMedicalHistory = function(USUBJID, MHCAT, MHSCAT, MHSTDTC, MHTERM) {
+        var MH = new MedicalEvent(USUBJID, MHCAT);
+        MH.MHSTDTC = MHSTDTC;
+        MH.MHTERM = MHTERM;
+        MH.MHSCAT = MHSCAT;
+        MH.displaySTDTC = MHSTDTC.getFullYear();
+        medicalHistory.addOccurence(MH);
+    }
+
+    var ID_CDISC = function(RecordItems, value) {
+
+        var USUBJID = generateOPTID(value['mstcid']);
+        var DM = new Patient(USUBJID);
+        DM.NHS_USUBJID = value['lastName']+", "+value['firstName']+" ("+value['dateOfBirth']+")";
+
+        DM.SEX = value['sex'];
+        DM.BRTHDTC = chxService.getDate(value['dateOfBirth']);
+        var dmRecordItem = chxService.getRecordItem(DM);
+        RecordItems.push(dmRecordItem);
+
+        if (value['ageonset'] != ""){
+            var brthdtc = new Date(DM.BRTHDTC);
+            var diagnosisDate = new Date();
+            diagnosisDate.setFullYear(brthdtc.getFullYear()+parseInt(value['ageonset']));
+            addMedicalHistory(USUBJID, 'Primary Diagnosis', 'Onset Course', diagnosisDate,
+                'Relapsing Remitting Multiple Sclerosis');
+        }
+    }
+
+    var addEvent = function(CEBODYSYS, CEGRPID, relapse) {
+        var USUBJID = generateOPTID(relapse['mstcID']);
+        var newEvent = new clinicalEvent(USUBJID, 'Multiple Sclerosis Relapse', 'MS Relapse');
+        newEvent.CEBODSYS = CEBODYSYS;
+        newEvent.CEGRPID = CEGRPID;
+        newEvent.CESTDTC = chxService.getDate(relapse["startDate"]);
+        newEvent.CELNKID = newEvent.CESTDTC+" Multiple Sclerosis Relapse";
+        newEvent.displayDate = parseInt(newEvent.CESTDTC.getMonth()+1)+"/"+newEvent.CESTDTC.getFullYear();
+        clinicalEvents.addEvent(newEvent);
+
+        return newEvent;
+    }
+
+    var addRelapse = function(CEBODYSYS, relapse) {
+        var currentCE = clinicalEvents.getCurrentEvent();
+
+        if (currentCE.length == 0) { // if new relapse
+            var newCEGRPID = clinicalEvents.getNewCEGRPID();
+            var newEvent = addEvent(CEBODYSYS, newCEGRPID, relapse)
+            clinicalEvents.setEvent(newEvent);
+        }
+        else {  // if there are existing events in this relapse
+            //if (inFunctionalSys != null) {  // if this event already exists
+            var newEvent = addEvent(CEBODYSYS, currentCE[0].CEGRPID, relapse);
+        }
+    }
+
+    var RE_CDISC = function(patientID) {
+        for (var r = 0; r < values['CE'].length; r++) {
+            if (patientID == generateOPTID(values['CE'][r]['mstcID'])){
+                var relapse = values['CE'][r];
+                clinicalEvents.clearEvent();
+                addRelapse('', relapse);
+            }
+        }
+    }
+
+    var EX_CDISC = function(patientID) {
+        for (var e = 0; e < values['EX'].length; e++) {
+            if (patientID == generateOPTID(values['EX'][e]['mstcID'])) {
+                var treatment = values['EX'][e];
+                var USUBJID = patientID;
+                var newExposure = new Exposure (USUBJID, treatment['dmtName']);
+                newExposure.EXSTDTC = chxService.getDate(treatment['dmtStartDate']);
+                if (treatment['dmtStopDate'] != '') {
+                    newExposure.EXENDTC = chxService.getDate(treatment['dmtStopDate']);
+                }
+                newExposure.displayDate = newExposure.EXSTDTC.toDateString();
+                newExposure.displayLabel = newExposure.EXTRT;
+                newExposure.EXCAT = 'Disease Modifying';
+                exposures.addExposure(newExposure);
+            }
+        }
+    }
+
+    var toCDISC_Access = function () {
+        var subjects = [];
+        for (var s = 0; s < values['DM'].length; s++) {
+
+            var value = values['DM'][s];
+            var RecordItems = [];
+            var root = {"RecordSet":RecordItems};
+
+            findingsAbout.clearAll();
+            medicalHistory.clearAll();
+            procedures.clearAll();
+            questionnaires.clearAll();
+            relationships.clearAll();
+            subjectVisits.clearAll();
+            clinicalEvents.clearAll();
+            exposures.clearAll();
+            clinicalEvents.clearEvent();
+
+            ID_CDISC(RecordItems, value);
+            RE_CDISC(generateOPTID(value['mstcid']));
+            EX_CDISC(generateOPTID(value['mstcid']));
+
+
+            for (var ce = 0; ce < medicalHistory.getMedicalHistory().length; ce++) {
+                var event = medicalHistory.getMedicalHistory()[ce];
+                var recordItem = chxService.getRecordItem(event);
+                RecordItems.push(recordItem);
+            }
+
+            for (var ce = 0; ce < clinicalEvents.getClinicalEvents().length; ce++) {
+                var event = clinicalEvents.getClinicalEvents()[ce];
+                var recordItem = chxService.getRecordItem(event);
+                RecordItems.push(recordItem);
+            }
+
+            for (var ex = 0; ex < exposures.getExposures().length; ex++) {
+                var exposure = exposures.getExposures()[ex];
+                var recordItem = chxService.getRecordItem(exposure);
+                RecordItems.push(recordItem);
+            }
+
+            subjects.push(root);
+        }
+
+        return subjects;
+    }
+
     var getFingolimodID = function(values, index) {
 
-        return values[index]['Surname']+", "+values[index]['FirstName'];
+        //return values[index]['Surname']+", "+values[index]['FirstName'];
+        return generateOPTID(values[index]['HospNo']);
         //return values[index];
+    }
+
+    var getFingolimodName = function(values, index) {
+        return values[index]['Surname']+", "+values[index]['FirstName']+" ("+values[index]['DOB']+")";
     }
 
     var getTecfideraID = function(values, index) {
-        return values[index]['Patient Surname ']+", "+values[index]['Patient First name '];
+        return generateOPTID(values[index]['Hospital No ']);
         //return values[index];
     }
 
+    var getTecfideraName = function(values, index) {
+        return values[index]['Patient Surname ']+", "+values[index]['Patient First name ']+" ("+values[index]['DOB ']+")";;
+    }
+
+
+    var getAccessID = function(index) {
+        return generateOPTID(values['DM'][index]['mstcid']);//return values[index];
+    }
+
+    var getAccessName = function(index) {
+        return values['DM'][index]['lastName']+", "+values['DM'][index]['firstName']+" ("+values['DM'][index]['dateOfBirth']+")";
+    }
+
     return {
+        getData: getData,
         getFingolimodData: getFingolimodData,
+        getFingolimodName: getFingolimodName,
         getTecfideraData: getTecfideraData,
         print: print,
+        printAccess: printAccess,
         setData: setData,
-        toCDISC_Fingalimod: toCDISC_Fingalimod,
+        setDataFromAccess: setDataFromAccess,
+        toCDISC_Fingolimod: toCDISC_Fingolimod,
+        getTecfideraName: getTecfideraName,
         toCDISC_Tecfidera: toCDISC_Tecfidera,
+        toCDISC_Access: toCDISC_Access,
         getFingolimodID: getFingolimodID,
-        getTecfideraID: getTecfideraID
+        getTecfideraID: getTecfideraID,
+        getAccessName: getAccessName,
+        getAccessID: getAccessID
     }
 });
